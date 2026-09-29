@@ -1,0 +1,14 @@
+**/secrets/
+**/credentials/
+.env*
+*.key
+*.pem
+*.pfx
+*.p12
+*.cer
+*.crt
+*.vhd*
+*.avhd*
+*.iso
+*.bak*
+*.backup*
