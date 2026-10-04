@@ -95,6 +95,19 @@ flowchart TB
 - The standard-user GPO blocks Control Panel, Command Prompt, and Run.
 - The DNS dynamic-update diagnostic passes locally on `DC01`.
 
+## Evidence Summary
+
+| Evidence area | Confirmed result |
+|---|---|
+| Hyper-V host | Role installed; host defaults use the dedicated `V:` ReFS datastore |
+| Network | External vSwitch operational; all three systems use the documented static address plan |
+| Active Directory | `ad.petrovicinfra.com` forest created; AD DS, DNS, Netlogon, DFSR, SYSVOL, and Global Catalog validated |
+| DNS | AD-integrated zone and SRV records resolve; the local `dcdiag` dynamic-update test creates and removes its temporary record successfully |
+| Management | `MGMT01` joined to the domain; RSAT consoles and RDP access work |
+| Identity | Standard and privileged accounts are separated; GG/DL nesting implements role-to-resource access |
+| Group Policy | Management baseline applies to `MGMT01`; user baseline blocks Control Panel, Command Prompt, and Run in the test session |
+| Troubleshooting | IPv6 DNS selection, WinRM trust, credentials, and the WAC/Kerberos second-hop boundary were identified and documented |
+
 ## Security and Safety Notes
 
 - Passwords and the DSRM password were entered interactively and are not present in this repository.
