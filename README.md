@@ -1,4 +1,3 @@
-
 # AZ-802 Windows Server Hybrid Lab
 
 A hands-on Windows Server 2025 homelab built to develop and demonstrate practical skills in identity, virtualization, remote administration, networking, storage, security, troubleshooting, and hybrid infrastructure.
@@ -7,7 +6,7 @@ The repository is aligned with AZ-802 subject areas, but it is designed as a pro
 
 ## Current Status
 
-The first infrastructure milestone was completed and validated on 4 October 2026.
+The core infrastructure milestone was completed on 4 October 2026. The `FILE01` file-services lab was completed and validated on 6 October 2026.
 
 | Component | Current state |
 |---|---|
@@ -17,10 +16,15 @@ The first infrastructure milestone was completed and validated on 4 October 2026
 | `DC01` | Windows Server 2025 Standard Core; AD DS and DNS; `192.168.1.11` |
 | Directory | Forest/domain `ad.petrovicinfra.com`; NetBIOS name `PETROVIC` |
 | `MGMT01` | Windows Server 2025 Standard Desktop Experience; domain joined; RSAT and RDP; `192.168.1.13` |
+| `FILE01` | Domain-joined file server in the File Servers OU; dedicated 40 GB dynamic data VHDX; NTFS `D:` volume labelled `Data` |
 | Identity | Dedicated standard and privileged accounts, structured OUs, Global and Domain Local security groups |
-| Policy | Domain password/lockout policy and two custom GPOs tested successfully |
+| File services | `\\FILE01\IT`; AGDLP-controlled SMB/NTFS access; FSRM quota and screening; VSS restore; GPO mapping to `I:` |
+| Policy | Domain password/lockout policy, server/user baselines, and `GPO-DriveMap-IT` tested successfully |
 
-Detailed implementation and validation notes are in [Lab 01: Core Infrastructure Foundation](labs/01-active-directory/README.md).
+Detailed implementation and validation notes are in:
+
+- [Lab 01: Core Infrastructure Foundation](labs/01-active-directory/README.md)
+- [Lab 04: FILE01 File Services](labs/04-file-services/README.md)
 
 ## Architecture
 
@@ -37,7 +41,7 @@ flowchart TB
         subgraph VMS["Generation 2 virtual machines"]
             DC["DC01 - 192.168.1.11<br/>Windows Server 2025 Standard Core<br/>AD DS + DNS"]
             MGMT["MGMT01 - 192.168.1.13<br/>Windows Server 2025 Standard Desktop<br/>RSAT + RDP"]
-            FS["FS01 - next milestone<br/>File Services + AGDLP permissions"]
+            FS["FILE01<br/>File Server + FSRM<br/>D: Data / \\\\FILE01\\IT"]
         end
     end
 
@@ -48,9 +52,11 @@ flowchart TB
     OS --- VSW
     VSW --- DC
     VSW --- MGMT
-    VSW -.-> FS
+    VSW --- FS
     MGMT -->|"ADUC / GPMC / DNS Manager / PowerShell"| DC
     DC -->|"AD DS, DNS and Group Policy"| MGMT
+    DC -->|"AD DS, DNS and Group Policy"| FS
+    MGMT -->|"RSAT / GPMC / SMB administration"| FS
 ```
 
 ## Implemented Identity and Policy Model
@@ -88,16 +94,22 @@ The built-in domain Administrator is retained as a recovery account rather than 
 - `GPO-SRV-Management-Baseline` is applied to `MGMT01`.
 - `GPO-User-Baseline` is applied to the standard user; Control Panel, Command Prompt, and Run were confirmed blocked.
 - RDP access for the standard user works through the documented group-nesting model.
+- `FILE01` is domain joined and placed in `OU=File Servers,OU=Servers,OU=PetrovicInfra,...`.
+- A dedicated 40 GB dynamic VHDX provides the NTFS `D:` data volume, separate from the guest operating-system disk.
+- `\\FILE01\IT` uses `GG-IT-Users`, `GG-Tier0-Admins`, and the `DL-FILE01-IT-RW/RO/FC` resource groups for AGDLP-based SMB and NTFS authorization.
+- FSRM enforces a 5 GB hard quota and an active `Executable Files` file screen; a text file was accepted and an executable file was blocked.
+- Shadow Copies are scheduled for `D:` and a Previous Versions restore was completed successfully.
+- `GPO-DriveMap-IT` maps `I:` to `\\FILE01\IT` for members of `GG-IT-Users` through item-level targeting.
 
 ## Repository Roadmap
 
 | Area | Status | Next evidence |
 |---|---|---|
 | Core infrastructure, AD DS, DNS, management, and initial GPO | In progress; foundation validated | Add a second DC and a client VM |
-| File services | Next | Build `FS01`; test share and NTFS permissions with AGDLP |
+| File services | `FILE01` milestone completed and validated | Add the read-only regression test, then continue later with DFS, TrueNAS, and independent backup |
 | AD resilience and recovery | Planned | Replication, FSMO, DNS redundancy, and recovery exercises |
 | Hyper-V operations | In progress | Export/import, recovery, and repeatable inventory |
-| Network services and VPN | Planned | DHCP, routing, DNS scenarios, and private remote access |
+| Network services and VPN | Next | DHCP authorization, scope, exclusions/reservations, options, and lease testing |
 | Security and monitoring | Planned | LAPS, Defender, auditing, Zabbix, and incident exercises |
 | Hybrid integration | Planned | Azure Arc and controlled Azure services within budget |
 | Backup and disaster recovery | Planned | Measured file, directory, and service restoration |
@@ -112,10 +124,4 @@ The built-in domain Administrator is retained as a recovery account rather than 
 
 ## Next Step
 
-Build `FS01`, join it to the domain, place it in the File Servers OU, and implement departmental shares using the following model:
-
-```text
-Account -> Global role group -> Domain Local resource group -> Share and NTFS permissions
-```
-
-The lab will include both allowed and denied access tests, Effective Access validation, and a clear comparison of share permissions versus NTFS permissions.
+Implement DHCP in the existing domain lab: authorize the DHCP server in Active Directory, create the first scope, configure exclusions or reservations and options `003`, `006`, and `015`, then validate lease assignment and PowerShell administration.
