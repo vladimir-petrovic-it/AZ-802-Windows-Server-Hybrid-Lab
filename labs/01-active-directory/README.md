@@ -1,7 +1,7 @@
 # Lab 01 — Windows Server 2025 Core Infrastructure Foundation
 
 **Date performed:** 4 October 2026  
-**Status:** Foundation completed and validated; the wider Core AD project remains in progress  
+**Status:** Foundation completed and validated; Core AD completed with [CLIENT01 integration](../05-hyper-v/README.md) on 10 October 2026  
 **Related AZ-802 areas:** AD DS, DNS, Group Policy, Windows Server remote management, Hyper-V, and troubleshooting
 
 ## Objective
@@ -26,7 +26,7 @@ The design must separate standard and privileged identities and use group nestin
 
 This lab covers the physical Hyper-V host, VM datastore, virtual networking, `DC01`, `MGMT01`, the first AD organizational model, initial security groups and accounts, domain password/lockout settings, two custom GPOs, RDP authorization, and troubleshooting performed during deployment.
 
-It does not yet cover a second domain controller, client VM, DHCP, file services, Azure Arc, JEA, Hyper-V recovery, backup, monitoring, or production-grade high availability.
+This foundation session did not cover a second domain controller, client VM, DHCP, file services, Azure Arc, JEA, Hyper-V recovery, backup, monitoring, or production-grade high availability. Subsequent completed milestones are documented in [FILE01 File Services](../04-file-services/README.md) and [CLIENT01 Domain Integration](../05-hyper-v/README.md).
 
 ## Environment
 
@@ -843,19 +843,19 @@ RDP logon was retested successfully with the standard account.
 
 ## Next Steps
 
-1. Deploy `FS01` as a domain-joined Windows Server 2025 file server.
-2. Move the computer object to `OU=File Servers,OU=Servers,OU=PetrovicInfra,...`.
-3. Create department Global groups and resource-specific Domain Local groups.
-4. Configure SMB share and NTFS permissions with AGDLP.
-5. Test both allowed and denied access and record Effective Access results.
-6. Add `CLIENT01` for user logon and GPO validation away from the management server.
-7. Add `DC02` and validate DNS redundancy, replication, and FSMO operations.
+The planned file server was deployed as `FILE01`, and its domain integration, File Servers OU placement, AGDLP permissions, FSRM, VSS restore, and drive mapping are complete. `CLIENT01` deployment, domain sign-in, Kerberos, GPO restrictions, and `I:` access are also complete.
 
-The next permission model will be:
+Remaining work:
+
+1. Implement the separate workstation security baseline lab, beginning with Windows LAPS.
+2. Add `DC02` in the AD resilience project and validate DNS redundancy, replication, and FSMO operations.
+3. Add the FILE01 read-only negative regression test and independent backup/recovery evidence.
+
+The implemented FILE01 permission model is:
 
 ```text
 User account
     -> Global department/role group
-        -> Domain Local FS01 resource group
+        -> Domain Local FILE01 resource group
             -> Share and NTFS permission
 ```

@@ -98,7 +98,7 @@ The built-in domain Administrator is retained as a recovery account rather than 
 - A WAC remote `dcdiag` warning was isolated to missing delegated Kerberos credentials; the same secure dynamic-update test passed locally on `DC01`.
 - `MGMT01` was joined to the domain and configured with RSAT and RDP.
 - `GPO-SRV-Management-Baseline` is applied to `MGMT01`.
-- `GPO-User-Baseline` applied to the standard user; Control Panel, Command Prompt, and Run were confirmed blocked.
+- `GPO-User-Baseline` is applied to the standard user; Control Panel, Command Prompt, and Run were confirmed blocked.
 - RDP access for the standard user works through the documented group-nesting model.
 - `FILE01` is domain joined and placed in `OU=File Servers,OU=Servers,OU=PetrovicInfra,...`.
 - A dedicated 40 GB dynamic VHDX provides the NTFS `D:` data volume, separate from the guest operating-system disk.
@@ -114,7 +114,7 @@ The built-in domain Administrator is retained as a recovery account rather than 
 
 | Area | Status | Next evidence |
 |---|---|---|
-| Core infrastructure, AD DS, DNS, management, and initial GPO | In progress; foundation and `CLIENT01` integration validated | Add a second DC and resilience testing |
+| Core AD domain and CLIENT01 integration | Completed and validated | Continue with the separate AD resilience project: second DC, replication, and DNS redundancy |
 | File services | `FILE01` milestone completed and validated | Add the read-only regression test, then continue later with DFS, TrueNAS, and independent backup |
 | AD resilience and recovery | Planned | Replication, FSMO, DNS redundancy, and recovery exercises |
 | Hyper-V operations | In progress; `CLIENT01` deployment validated | Export/import, recovery, and repeatable inventory |
