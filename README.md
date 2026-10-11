@@ -6,7 +6,7 @@ The repository is aligned with AZ-802 subject areas, but it is designed as a pro
 
 ## Current Status
 
-The core infrastructure milestone was completed on 4 October 2026. The `FILE01` file-services lab was completed and validated on 6 October 2026. The `CLIENT01` Windows 11 Enterprise deployment and domain-integration lab was completed and validated on 10 October 2026.
+The core infrastructure milestone was completed on 4 October 2026. The `FILE01` file-services lab was completed and validated on 6 October 2026. The `CLIENT01` Windows 11 Enterprise deployment and domain-integration lab was completed and validated on 10 October 2026. The Lab 03 Group Policy practical block was completed and validated on 11 October 2026, including positive and negative tests and cleanup.
 
 | Component | Current state |
 |---|---|
@@ -25,6 +25,7 @@ The core infrastructure milestone was completed on 4 October 2026. The `FILE01` 
 Detailed implementation and validation notes are in:
 
 - [Lab 01: Core Infrastructure Foundation](labs/01-active-directory/README.md)
+- [Lab 03: Group Policy](labs/03-group-policy/README.md)
 - [Lab 04: FILE01 File Services](labs/04-file-services/README.md)
 - [Lab 05: CLIENT01 Windows 11 Enterprise Domain Integration](labs/05-hyper-v/README.md)
 
@@ -109,12 +110,14 @@ The built-in domain Administrator is retained as a recovery account rather than 
 - `CLIENT01` runs Windows 11 Enterprise with Secure Boot and vTPM, uses `DC01` for domain services, and is joined to the Standard workstation OU.
 - `PETROVIC\vladimir.petrovic` signed in to `CLIENT01`; RDP and a valid Kerberos TGT through `DC01.ad.petrovicinfra.com` were confirmed.
 - `GPO-User-Baseline` and `GPO-DriveMap-IT` applied on `CLIENT01`; Command Prompt, Run, and Control Panel were blocked, while `I:` provided working access to `\\FILE01\IT` through the existing AGDLP chain.
+- Lab 03 validated Security Filtering, Read vs Apply Group Policy, inheritance and precedence, Block Inheritance, Enforced, Loopback Merge/Replace, positive and negative WMI filtering, and `gpresult`/HTML RSoP troubleshooting on `CLIENT01`; normal behavior was restored after cleanup.
 
 ## Repository Roadmap
 
 | Area | Status | Next evidence |
 |---|---|---|
 | Core AD domain and CLIENT01 integration | Completed and validated | Continue with the separate AD resilience project: second DC, replication, and DNS redundancy |
+| Group Policy — Lab 03 | Practical block completed and validated; cleanup confirmed | Preserve the documented scope and filtering behavior in later regression tests |
 | File services | `FILE01` milestone completed and validated | Add the read-only regression test, then continue later with DFS, TrueNAS, and independent backup |
 | AD resilience and recovery | Planned | Replication, FSMO, DNS redundancy, and recovery exercises |
 | Hyper-V operations | In progress; `CLIENT01` deployment validated | Export/import, recovery, and repeatable inventory |
@@ -133,4 +136,4 @@ The built-in domain Administrator is retained as a recovery account rather than 
 
 ## Next Step
 
-Create a separate Windows workstation security baseline lab, beginning with Windows LAPS, then add Defender Firewall, auditing, local administrator group management, and PowerShell logging. DHCP remains the next planned network-services milestone.
+Continue with the existing `FILE01` advanced practical block, as recorded after Lab 03 cleanup. The separate Windows workstation security baseline remains planned, beginning with Windows LAPS, then Defender Firewall, auditing, local administrator group management, and PowerShell logging. DHCP remains a planned network-services milestone.
